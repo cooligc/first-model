@@ -1,0 +1,18 @@
+# Relative FROM: fuse_and_convert.sh copies this file next to the GGUF (keeping FROM in sync with --gguf-name).
+FROM ./model.gguf
+
+# Qwen3 ChatML template. No <think> block is injected: training examples (assistant answer directly after
+# the assistant tag) and inference prompts then match. See STEPS.md "Think mode".
+TEMPLATE """{{- if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{- range .Messages }}<|im_start|>{{ .Role }}
+{{ .Content }}<|im_end|>
+{{ end }}<|im_start|>assistant
+"""
+
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|im_start|>"
+PARAMETER temperature 0.2
+PARAMETER num_ctx 4096
+
+SYSTEM """You are a quantitative market analyst. Answer only from the price history provided."""
